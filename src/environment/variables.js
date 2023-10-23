@@ -1,0 +1,1 @@
+export const baseUrl = "https://fyp-smartagri.azurewebsites.net/api"
