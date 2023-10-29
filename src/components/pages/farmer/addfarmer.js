@@ -12,7 +12,7 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { useState } from "react";
 import axios from 'axios';
-import { baseUrl } from '../../../environment/variables';
+import { baseUrl, baseUrl2 } from '../../../environment/variables';
 import InputLabel from '@mui/material/InputLabel';
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -28,14 +28,9 @@ function AddFarmer() {
     const [selected, setSelected] = useState('Select');
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
-    const [transportMethod, setTransportMethod] = useState('none'); // Default value
-
-    const handleChange = (event) => {
-        setSelected(event.target.value);
-    };
-
+    const [transportMethod, setTransportMethod] = useState(true); // Default value
     const handleTransportMethodChange = (event) => {
-        setTransportMethod(event.target.value);
+        setTransportMethod(event.target.value === 'true');
     };
 
     const [firstName, setFirstName] = useState('');
@@ -49,27 +44,37 @@ function AddFarmer() {
     const [district, setDistrict] = useState('');
     const [province, setProvince] = useState('');
     const [postalCode, setPostalCode] = useState('');
-    const [landType, setLandType] = useState('');
+    const [landType, setLandType] = useState(0);
     const handleLandTypeChange = (event) => {
-        setLandType(event.target.value);
+        setLandType(parseInt(event.target.value));
     };
-    const [landSize, setLandSize] = useState('');
-    const [region, setRegion] = useState('');
+    const [landSize, setLandSize] = useState(0);
+    const [region, setRegion] = useState(0);
     const handleRegionChange = (event) => {
-        setRegion(event.target.value);
+        setRegion(parseInt(event.target.value));
     }
-    const [cropsType, setCropType] = useState('');
+    const [cropsType, setCropType] = useState(0);
     const handleCropTypeChange = (event) => {
-        setCropType(event.target.value);
+        setCropType(parseInt(event.target.value));
     };
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [dob, setDOB] = useState(null);
+    const [nicNumber, setNICNumber] = useState('');
+    const [vehicleType, setVehicleType] = useState('');
+    const handleVehicleTypeChange = (event) => {
+        setVehicleType(event.target.value);
+    };
+    const [vehicleNo, setVehicleNo] = useState('');
+    const [vehicleCapasity, setVehicleCapasity] = useState(0);
 
 
     const data = {
+        roleType: 4,
         firstName: firstName,
         middleName: middleName,
         lastName: lastName,
-        emailAddress: emailAddress,
-        phoneNumber: phoneNumber,
+        email: emailAddress,
         addressLine1: addressLine1,
         addressLine2: addressLine2,
         city: city,
@@ -77,17 +82,29 @@ function AddFarmer() {
         district: district,
         province: province,
         postalCode: postalCode,
+        phoneNumber: phoneNumber,
+        role: "Farmer",
+        password: password,
+        confPassword: confirmPassword,
+        dob: dob,
+        nic: nicNumber,
         landType: landType,
         landSize: landSize,
         cropsType: cropsType,
+        hasTransportMedium: transportMethod,
+        vehicleType: vehicleType,
+        vehicleCapacity: vehicleCapasity,
+        vehicleNo: vehicleNo
     }
 
     const addFarmer = () => {
-        axios.post(`${baseUrl}/Farmer/addFarmer`, data)
+        axios.post(`${baseUrl}/Account/register`, data)
             .then((response) => {
-                if (response.data.status === true) {
-                    alert(response.data.message)
-                    console.log(response)
+                if (response.data.Success === true) {
+                    alert(response.data.data)
+                }
+                else if (response.data.Success === false) {
+                    alert(response.data.data.Message)
                 }
             })
             .catch((error) => {
@@ -150,6 +167,20 @@ function AddFarmer() {
                             variant="outlined"
                             style={{ width: '60%', height: '43%' }}
                             onChange={(e) => { setPhoneNumber(e.target.value) }}
+                        />
+                    </Grid>
+                    <Grid item xs={4}>
+                        <h4>Date of birth</h4>
+                        <input type="date" id="startDate" style={{ width: '60%', height: '43%' }} onChange={(e) => { setDOB(e.target.value) }} />
+                    </Grid>
+                    <Grid item xs={4}>
+                        <h4>NIC Number</h4>
+                        <TextField
+                            id="filled-basic"
+                            label="Enter Phone No"
+                            variant="outlined"
+                            style={{ width: '60%', height: '43%' }}
+                            onChange={(e) => { setNICNumber(e.target.value) }}
                         />
                     </Grid>
                 </Grid>
@@ -239,6 +270,30 @@ function AddFarmer() {
                             onChange={(e) => { setPostalCode(e.target.value) }}
                         />
                     </Grid>
+
+                    <Grid item xs={4}>
+                        <h4>Password</h4>
+                        <TextField
+                            id="password"
+                            label="Password"
+                            type="password"
+                            style={{ width: '60%', height: '43%' }}
+                            autoComplete="current-password"
+                            onChange={(e) => { setPassword(e.target.value) }}
+                        />
+                    </Grid>
+
+                    <Grid item xs={4}>
+                        <h4>Confirm Password</h4>
+                        <TextField
+                            id="confirm-password"
+                            label="Confirm Password"
+                            type="password"
+                            style={{ width: '60%', height: '43%' }}
+                            autoComplete="confirm-password"
+                            onChange={(e) => { setConfirmPassword(e.target.value) }}
+                        />
+                    </Grid>
                 </Grid>
             </Box>
 
@@ -266,7 +321,13 @@ function AddFarmer() {
                     </Grid>
                     <Grid item xs={4}>
                         <h4>Land Size</h4>
-                        <TextField id="filled-basic" label="Enter Land Size" variant="outlined" style={{ width: '60%', height: '43%' }} />
+                        <TextField
+                            id="filled-basic"
+                            label="Enter Land Size"
+                            variant="outlined"
+                            style={{ width: '60%', height: '43%' }}
+                            onChange={(e) => { setLandSize(e.target.value) }}
+                        />
                     </Grid>
                     <Grid item xs={4}>
                         <h4>Crops Type</h4>
@@ -296,17 +357,53 @@ function AddFarmer() {
                                 onChange={handleTransportMethodChange}
                             >
                                 <FormControlLabel
-                                    value="yes"
+                                    value="true"
                                     control={<Radio />}
                                     label="Yes"
                                 />
                                 <FormControlLabel
-                                    value="no"
+                                    value="fales"
                                     control={<Radio />}
                                     label="No"
                                 />
                             </RadioGroup>
                         </FormControl>
+                    </Grid>
+                    <Grid item xs={4}>
+                        <h4>Vehicle Type</h4>
+                        <FormControl variant="outlined" style={{ width: '60%' }}>
+                            <InputLabel id="vehicletype">Select Vehicle Type</InputLabel>
+                            <Select
+                                labelId="vehicletype"
+                                id="vehitype"
+                                value={vehicleType}
+                                onChange={handleVehicleTypeChange}
+                                label="Select Vehicle Type"
+                            >
+                                <MenuItem value="Lorry">Lorry</MenuItem>
+                                <MenuItem value="Tractor">Tractor</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={4}>
+                        <h4>Vehicle Number</h4>
+                        <TextField
+                            id="filled-basic"
+                            label="Enter Vehicle Number"
+                            variant="outlined" s
+                            style={{ width: '60%', height: '43%' }}
+                            onChange={(e) => { setVehicleNo(e.target.value) }}
+                        />
+                    </Grid>
+                    <Grid item xs={4}>
+                        <h4>Vehicle Capasity</h4>
+                        <TextField
+                            id="filled-basic"
+                            label="Enter Vehicle Capasity"
+                            variant="outlined" s
+                            style={{ width: '60%', height: '43%' }}
+                            onChange={(e) => { setVehicleCapasity(e.target.value) }}
+                        />
                     </Grid>
                 </Grid>
             </Box>

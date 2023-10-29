@@ -8,9 +8,10 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from 'axios';
-import { baseUrl } from "../../../environment/variables";
+import { baseUrl, baseUrl2 } from "../../../environment/variables";
+import Chip from '@mui/material/Chip';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#DCDCDC' : '#fff',
@@ -36,42 +37,49 @@ function CropDetails() {
     }
 
     const startSeason = () => {
-        console.log(seasonData)
-
+        if (seasonId !== '') {
+            alert("Season already started")
+            return;
+        }
         axios.post(`${baseUrl}/Admin/StartSeason`, seasonData)
             .then((response) => {
                 if (response.data.success === true) {
                     alert(response.data.message)
-                    console.log(response)
-                }
-                else if (response.data.success === false) {
-                    alert(response.data.message)
-                    console.log(response)
+                    setSeasonId(response.data.data);
                 }
             })
             .catch((error) => {
-                console.error(error)
                 alert(error)
             })
     }
 
     const [seasonId, setSeasonId] = useState('');
 
+    useEffect(() => {
+        const getSeasonId = async () => {
+            try {
+                const response = await axios.get(`${baseUrl}/Admin/GetCurrentSeasonId`);
+                setSeasonId(response.data.data);
+            } catch (error) {
+                alert('Error fetching data: ', error)
+            }
+        };
+        getSeasonId();
+    }, []);
+
+    useEffect(() => {
+
+    }, [seasonId]);
+
     const endSeason = () => {
-        console.log(seasonId)
         axios.post(`${baseUrl}/Admin/EndCurrentSeason?seasonId=${seasonId}`)
             .then((response) => {
                 if (response.data.success === true) {
                     alert(response.data.message)
-                    console.log(response)
-                }
-                else if (response.data.success === false) {
-                    alert(response.data.message)
-                    console.log(response)
+                    setSeasonId('');
                 }
             })
             .catch((error) => {
-                console.error(error)
                 alert(error)
             })
     }
@@ -105,25 +113,30 @@ function CropDetails() {
     }
 
     const saveCrop = () => {
-        // console.log(cropData)
-
-        // axios.post("https://localhost:7287/api/Admin/PopulateCropsRecord", cropData)
-        //     .then((response) => {
-        //         if (response.data.success === true) {
-        //             alert(response.data.message)
-        //             console.log(response)
-        //         }
-        //         else if (response.data.success === false) {
-        //             alert(response.data.message)
-        //             console.log(response)
-        //         }
-        //     })
-        //     .catch((error) => {
-        //         console.error(error)
-        //         alert(error)
-        //     })
-        alert("Functions are not working currently")
+        axios.post(`${baseUrl}/Admin/PopulateCropsRecord`, cropData)
+            .then((response) => {
+                if (response.data.success === true) {
+                    alert(response.data.message)
+                    console.log(response)
+                }
+                else if (response.data.success === false) {
+                    alert(response.data.message)
+                }
+            })
+            .catch((error) => {
+                alert(error)
+            })
     }
+
+    const handleClick = (lable) => {
+        navigator.clipboard.writeText(lable)
+            .then(() => {
+                alert('Text copied to clipboard');
+            })
+            .catch(err => {
+                alert('Failed to copy text: ', err);
+            });
+    };
 
     return (
         <div>
@@ -166,7 +179,14 @@ function CropDetails() {
             <Box sx={{ flexGrow: 1 }}>
                 <Grid container spacing={1}>
                     <Grid item xs={12}>
-                        <Item style={{ textAlign: 'left', backgroundColor: '#017840', color: '#fff', fontWeight: 'bold', fontSize: '20px', marginTop: '20px' }}>End Season</Item>
+                        <Item style={{ textAlign: 'left', backgroundColor: '#017840', color: '#fff', fontWeight: 'bold', fontSize: '20px', marginTop: '20px' }}>End Season
+                            <Chip
+                                style={{ marginLeft: '20px', color: '#fff' }}
+                                label="Copy Current Season Id"
+                                variant="outlined"
+                                onClick={() => handleClick(seasonId)}
+                            />
+                        </Item>
                     </Grid>
                     <Grid item xs={4}>
                         <h4>Season Id</h4>

@@ -16,6 +16,7 @@ import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import { useState, useEffect } from 'react';
 import axios from "axios";
+import { baseUrl, baseUrl2 } from "../../../environment/variables";
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#DCDCDC' : '#fff',
@@ -29,23 +30,24 @@ const Item = styled(Paper)(({ theme }) => ({
 function CropRecord() {
     const [rows, setRows] = useState([]);
 
-    // useEffect(() => {
-    //     async function fetchData() {
-    //         const response = await axios.get('https://localhost:7287/api/Admin/GetCurrentSeasonSales');
-    //         const data = response.data.data;
-    //         console.log(data);
-    //         if (Array.isArray(data)) {
-    //             const records = data.map(u => createRecord(u.qtyr, u.qtyl, u.qtys, u.esp, u.slos, u.ssal));
-    //             setRows(records);
-    //         }
-    //     }
+    useEffect(() => {
+        async function fetchData() {
+            const response = await axios.get(`${baseUrl}/Admin/GetCurrentSeasonSales`);
+            const data = response.data.data;
+            console.log(data);
 
-    //     fetchData();
-    // }, []);
+            if (data) {
+                const record = createRecord(data.quantityRecieved, data.quantityLoss, data.quantitySold, data.estimatedPrice, data.seasonLoss, data.seasonSales);
+                setRows([record]);
+            }
+        }
 
-    // function createRecord(qtyr, qtyl, qtys, esp, slos, ssal) {
-    //     return { qtyr, qtyl, qtys, esp, slos, ssal };
-    // }
+        fetchData();
+    }, []);
+
+    function createRecord(quantityReceived, quantityLoss, quantitySold, estimatedPrice, seasonLoss, seasonSales) {
+        return { qtyr: quantityReceived, qtyl: quantityLoss, qtys: quantitySold, esp: estimatedPrice, slos: seasonLoss, ssal: seasonSales };
+    }
 
     return (
         <div>
